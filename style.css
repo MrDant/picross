@@ -1,0 +1,101 @@
+html {
+    width: 100vw;
+    height: 100vh;
+}
+body {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+* > * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.grid {
+    border: solid 1px black;
+}
+
+.flex {
+    display: flex;
+}
+
+.center {
+    align-items: center;
+    justify-content: center;
+}
+
+.line{
+    display: flex;
+}
+.square {
+    border: solid 0.5px black;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.square.empty {
+    cursor: pointer;
+    background-color: rgb(234, 234, 234);
+}
+
+.square.valid {
+    background-color: rgb(35, 35, 128);
+}
+.square.wrongEmty::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    content: "X";
+    color: red;
+}
+.square.wrongFull {
+    background-color: red;
+}
+.square.cross::after {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    content: "X";
+    color: rgb(35, 35, 128);
+}
+#top {
+    display: flex;
+    justify-content: end;
+    text-align: center;
+    flex-shrink: 0;
+}
+#top > * {
+    width: 30px;
+}
+
+#left {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    text-align: center;
+    flex-wrap: nowrap;
+}
+#left > * {
+    padding: 0.5rem;
+    height: 30px;
+}
+
+.number {
+    border-radius: 2px;
+    background: rgb(215, 138, 99);
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+}
+
+.check .number {
+    background: rgb(128, 149, 208);
+}

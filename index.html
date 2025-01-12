@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link type="text/css" rel="stylesheet" href="./style.css">
+    </head>
+    <body class="check">
+        <h1>Mon jeu</h1>
+        <label for="size">Taille</label>
+        <input type="number" value="5" id="size"/>
+        <div>
+            <div id="life" class="flex center"></div>
+            <div id="top">coucou</div>
+            <div class="flex" style="margin-left: -30px; justify-content: end;">
+                <div id="left">coté</div>
+                <div class="grid" id="game-grid"></div>
+            </div>
+        </div>
+        <button onclick="refresh()">générer</button>
+        <label>Type de sélection : </label>
+        <div class="flex">
+            <input type="radio" value="0" name="type" id="0" onclick="changeType()"/><label for="0">X</label>
+        </div>
+        <div class="flex">
+            <input type="radio" value="1" name="type" id="1" onclick="changeType()"/><label for="1">1</label>
+        </div>
+        <prev></prev>
+        <script src="./index.js" ></script>
+    </body>
+</html>
