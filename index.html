@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nonogram Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    h1 {
+      margin: 20px;
+    }
+    #menu, #game {
+      margin-top: 20px;
+    }
+    .grid {
+      display: grid;
+      margin: 20px auto;
+      gap: 2px;
+      background-color: #444;
+    }
+    .cell {
+      width: 30px;
+      height: 30px;
+      background-color: white;
+      border: 1px solid #ccc;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+    }
+    .cell.filled {
+      background-color: black;
+    }
+    .cell.incorrect {
+      background-color: red;
+    }
+    .header-cell {
+      background-color: #ddd;
+      font-size: 0.8em;
+      text-align: center;
+      line-height: 1.2;
+      white-space: pre;
+    }
+    #lives {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+    #winMessage {
+      font-size: 1.5em;
+      color: green;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Nonogram Game</h1>
+  <div id="menu">
+    <h2>Select Difficulty</h2>
+    <button onclick="startGame(5)">Easy (5x5)</button>
+    <button onclick="startGame(10)">Medium (10x10)</button>
+    <button onclick="startGame(15)">Hard (15x15)</button>
+  </div>
+
+  <div id="game" style="display: none;">
+    <div id="lives">Lives: 3</div>
+    <div id="grid" class="grid"></div>
+    <div id="winMessage" style="display: none;">You Win! 🎉</div>
+    <button onclick="resetGame()">Back to Menu</button>
+  </div>
+
+  <script>
+    let gridSize = 5;
+    let lives = 3;
+    let solution = [];
+
+    function startGame(size) {
+      gridSize = size;
+      lives = 3;
+      solution = generateSolution(size);
+
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('game').style.display = 'block';
+
+      document.getElementById('lives').innerText = `Lives: ${lives}`;
+      document.getElementById('winMessage').style.display = 'none';
+      drawGrid(size);
+    }
+
+    function generateSolution(size) {
+      const solution = [];
+      for (let i = 0; i < size; i++) {
+        const row = [];
+        for (let j = 0; j < size; j++) {
+          row.push(Math.random() > 0.7 ? 1 : 0); // 1 = filled, 0 = empty
+        }
+        solution.push(row);
+      }
+      return solution;
+    }
+
+    function calculateHints(solution) {
+      const rowHints = solution.map(row => {
+        let hint = [];
+        let count = 0;
+        row.forEach(cell => {
+          if (cell === 1) {
+            count++;
+          } else if (count > 0) {
+            hint.push(count);
+            count = 0;
+          }
+        });
+        if (count > 0) hint.push(count);
+        return hint.length ? hint : [0];
+      });
+
+      const colHints = [];
+      for (let col = 0; col < solution[0].length; col++) {
+        let hint = [];
+        let count = 0;
+        for (let row = 0; row < solution.length; row++) {
+          if (solution[row][col] === 1) {
+            count++;
+          } else if (count > 0) {
+            hint.push(count);
+            count = 0;
+          }
+        }
+        if (count > 0) hint.push(count);
+        colHints.push(hint.length ? hint : [0]);
+      }
+
+      return { rowHints, colHints };
+    }
+
+    function drawGrid(size) {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      const { rowHints, colHints } = calculateHints(solution);
+
+      // Set grid template
+      grid.style.gridTemplateColumns = `repeat(${size + 1}, 30px)`;
+      grid.style.gridTemplateRows = `repeat(${size + 1}, 30px)`;
+
+      // Draw column hints
+      grid.appendChild(document.createElement('div')); // Top-left empty cell
+      for (let col = 0; col < size; col++) {
+        const hintCell = document.createElement('div');
+        hintCell.classList.add('header-cell');
+        hintCell.innerText = colHints[col].join('\n');
+        grid.appendChild(hintCell);
+      }
+
+      // Draw rows and their hints
+      for (let row = 0; row < size; row++) {
+        // Row hint cell
+        const hintCell = document.createElement('div');
+        hintCell.classList.add('header-cell');
+        hintCell.innerText = rowHints[row].join(' ');
+        grid.appendChild(hintCell);
+
+        // Grid cells
+        for (let col = 0; col < size; col++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.addEventListener('click', handleCellClick);
+          grid.appendChild(cell);
+        }
+      }
+    }
+
+    function handleCellClick(event) {
+      const cell = event.target;
+      const row = parseInt(cell.dataset.row);
+      const col = parseInt(cell.dataset.col);
+
+      if (solution[row][col] === 1) {
+        cell.classList.add('filled');
+      } else {
+        cell.classList.add('incorrect');
+        lives--;
+        document.getElementById('lives').innerText = `Lives: ${lives}`;
+
+        if (lives <= 0) {
+          alert('Game Over!');
+          resetGame();
+        }
+      }
+
+      cell.removeEventListener('click', handleCellClick);
+
+      if (checkWin()) {
+        document.getElementById('winMessage').style.display = 'block';
+      }
+    }
+
+    function checkWin() {
+      const cells = document.querySelectorAll('.cell');
+      for (let cell of cells) {
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        if (solution[row][col] === 1 && !cell.classList.contains('filled')) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function resetGame() {
+      document.getElementById('menu').style.display = 'block';
+      document.getElementById('game').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
